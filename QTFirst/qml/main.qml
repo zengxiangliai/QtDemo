@@ -12,6 +12,28 @@ Window {
     visible: true
     color: "transparent"
     flags: Qt.FramelessWindowHint | Qt.Window
+    property bool isDragging: false
+
+
+    // 记录普通状态下的位置和大小（用于还原）
+    property bool  isZoomed: false
+    property real  normalX:   100
+    property real  normalY:   80
+    property real  normalW:   1200
+    property real  normalH:   800
+
+    // 给几何属性加平滑动画（苹果风关键）
+    Behavior on x {
+        enabled: !root.isDragging
+        NumberAnimation { duration: 220; easing.type: Easing.InOutCubic }
+    }
+    Behavior on y {
+        enabled: !root.isDragging
+        NumberAnimation { duration: 220; easing.type: Easing.InOutCubic }
+    }
+    Behavior on width  { NumberAnimation { duration: 220; easing.type: Easing.InOutCubic } }
+    Behavior on height { NumberAnimation { duration: 220; easing.type: Easing.InOutCubic } }
+
 
     Rectangle {
         id: mainFrame
@@ -80,11 +102,19 @@ Window {
 
                             onPressed: {
                                 if (mouse.button === Qt.LeftButton) {
+                                    root.isDragging = true
                                     pressX = mouse.x
                                     pressY = mouse.y
                                 }
                             }
+                            onReleased: {
+                                root.isDragging = false
+                            }
 
+                            onCanceled: {
+                                root.isDragging = false
+                            }
+                            
                             onPositionChanged: 
                             {
                                 if (mouse.buttons & Qt.LeftButton)                   
@@ -115,10 +145,29 @@ Window {
                         ToolButton {
                             text: "□"
                             onClicked: {
-                                if (root.visibility === Window.Maximized)
-                                    root.showNormal()
-                                else
-                                    root.showMaximized()
+                                if (!root.isZoomed) {
+                                    // 记录当前正常窗口的几何，用于还原
+                                    root.normalX = root.x
+                                    root.normalY = root.y
+                                    root.normalW = root.width
+                                    root.normalH = root.height
+
+                                    root.isZoomed = true
+
+                                    // 目标：占满当前屏幕工作区（留一点点边距也可以）
+                                    // 简单写法：直接全屏
+                                    root.x = Screen.width  > 0 ? 0 : root.x
+                                    root.y = Screen.height > 0 ? 0 : root.y
+                                    root.width  = Screen.width
+                                    root.height = Screen.height
+                                } else {
+                                    // 还原到之前记录的位置和大小
+                                    root.isZoomed = false
+                                    root.x = root.normalX
+                                    root.y = root.normalY
+                                    root.width  = root.normalW
+                                    root.height = root.normalH
+                                }
                             }
                         }
                         ToolButton {
