@@ -130,19 +130,21 @@ Window {
 
             }
 
-            // 中间三列区域
-            SplitView {
-                id: splitView
+            // 中间三列区域（固定宽度，不可拖拽）
+            RowLayout {
+                id: mainColumns
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                orientation: Qt.Horizontal
+                spacing: 0
 
                 // 左侧：导航栏
                 Rectangle {
                     id: leftNav
                     color: "#171717"
-                    SplitView.preferredWidth: 72
-                    SplitView.minimumWidth: 60
+                    Layout.preferredWidth: 72
+                    Layout.minimumWidth: 72
+                    Layout.maximumWidth: 72
+                    Layout.fillHeight: true
 
                     Column {
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -174,8 +176,10 @@ Window {
                 Rectangle {
                     id: middleList
                     color: "#141414"
-                    SplitView.preferredWidth: 320
-                    SplitView.minimumWidth: 260
+                    Layout.preferredWidth: 320
+                    Layout.minimumWidth: 320
+                    Layout.maximumWidth: 320
+                    Layout.fillHeight: true
 
                     ListView {
                         id: stockList
@@ -259,7 +263,8 @@ Window {
                 Rectangle {
                     id: rightPanel
                     color: "#101010"
-                    SplitView.fillWidth: true
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
 
                     // 对外暴露一些属性，方便中间列表赋值
                     property string currentSymbol: ""
